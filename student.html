@@ -60,7 +60,7 @@
       gd.id = "my-signin2"
       gd.innerHTML = "Loading authetication ..."
       let si = setInterval(function(){
-        try{renderButton()}catch(error){gd.innerHTML+="..."}
+        try{renderButton();clearInterval(si)}catch(error){gd.innerHTML+="..."}
       },1000)
     }
 
