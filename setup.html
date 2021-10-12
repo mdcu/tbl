@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="viewport" content="user-scalable=no, width=device-width"/>
+    <meta name="apple-mobile-web-app-title" content="iTBL setup webapp"/>
+    <title>iTBL setup webapp</title>
+    <link rel="icon" href="https://mdcu.github.io/onka.js/asset/onka.png" type="image/x-icon"/>
+    <link rel="stylesheet" href="https://mdcu.github.io/onka.js/onka_base.css"/>
+    <link rel="stylesheet" href="osce.css"/>
+    <!--<link rel="stylesheet" href="onka_underproduction.css"/> <!-- comment out this line once design process is done-->
+    <script src="https://mdcu.github.io/onka.js/onka.js"></script>
+    <script src="https://mdcu.github.io/onka.js/onka_array.js"></script>
+    <script src="https://mdcu.github.io/onka.js/onka_file.js"></script>
+    <script src="https://mdcu.github.io/onka.js/onka_dom.js"></script>
+    <script src="osce.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <style>
+      #panel > div:nth-child(odd) {background-color:#DDD;}
+      #panel > div:nth-child(even) {background-color:#EEE;}
+        #panel > div > div {display: inline-block;}
+          #panel > div > div span {margin-left: 1em;}
+        #panel >div > span {float:right;color:#CCC;font-size:0.5em;}
+      #panel > p {line-break:anywhere;}
+        #crypted {padding:1em;background-color: limegreen;}
+    </style>
+  </head>
+  <body>
+<!--
+2) CryptoJS.AES.encrypt(...,PASSWORD)
+3) CryptoJS.AES.decrypt(...,PASSWORD).toString(CryptoJS.enc.Utf8)
+-->
+  <label>Questions: <input id="qno" type=number min=1 max=100 value=10></label>
+  <label>Type of labels: <select id="cty">
+    <option value="D">1,2,3,4,...</option>
+    <option value="A">A,B,C,D,...</option>
+    <option value="a">a,b,c,d,...</option>
+    <option value="T">ก,ข,ค,ง,...</option>
+  </select></label>
+  <input type=button id="conbut" value="construct">
+  <div id=panel></div>
+  <script id="npc">
+    const markers = {
+      "D":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],
+      "A":["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P"],
+      "a":["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p"],
+      "T":["ก","ข","ค","ง","จ","ฉ","ช","ซ","ญ","ด","ต","ถ","ท","น","บ"]
+    }
+    document.getElementById("qno").addEventListener("change",function(e){
+      if(+e.target.value < e.target.min)e.target.value = e.target.min;
+      if(+e.target.value > e.target.max)e.target.value = e.target.max;
+    })
+    document.getElementById("conbut").addEventListener("click",function(){
+      let panel = document.getElementById("panel")
+      let qno = +document.getElementById("qno").value
+      let cty = markers[document.getElementById("cty").value]
+      panel.innerHTML = ""
+      while(qno--){
+        let row = document.createElement("div")
+        let box = document.createElement("input")
+        box.type = "number"
+        box.min = 2
+        box.max = 16
+        box.value = 4
+        box.addEventListener("change",buildc)
+        let cbox = document.createElement("div")
+        for(let i=0;i<4;i++){
+          cbox.appendChild(document.createElement("span")).innerText = cty[i]
+          cbox.appendChild(document.createElement("input")).type = "checkbox"
+        }
+        row.appendChild(box);row.appendChild(cbox);row.appendChild(document.createElement("span"))
+        cbox.addEventListener("change",function(e){binarize(e.target)})
+        panel.appendChild(row)
+      }
+      panel.appendChild(document.createElement("p")).id = "bin"
+      document.querySelectorAll("#panel > div > div > [type=checkbox]:last-child").forEach(cb=>{binarize(cb)})
+      panel.appendChild(document.createElement("span")).innerText = "TBL name: "
+      let tblname = panel.appendChild(document.createElement("input"))
+      tblname.id = "tblname"
+      panel.appendChild(document.createElement("br"))
+      panel.appendChild(document.createElement("span")).innerText = "TBL mode: "
+      let tblmode = panel.appendChild(document.createElement("select"))
+      tblmode.id = "tblmode"
+      tblmode.appendChild(document.createElement("option")).innerText = "open"
+      tblmode.appendChild(document.createElement("option")).innerText = "authen"
+      tblmode.appendChild(document.createElement("option")).innerText = "locked"
+      panel.appendChild(document.createElement("br"))
+      panel.appendChild(document.createElement("span")).innerText = "Key: "
+      let passcode = panel.appendChild(document.createElement("input"))
+      passcode.id = "passcode"
+      panel.appendChild(document.createElement("br"))
+      panel.appendChild(document.createElement("span")).innerText = "Form ID: "
+      let formid = panel.appendChild(document.createElement("input"))
+      formid.id = "formid"
+      panel.appendChild(document.createElement("p")).id = "crypted"
+      tblmode.addEventListener("change",updatecrypted)
+      passcode.addEventListener("change",updatecrypted)
+      formid.addEventListener("change",updatecrypted)
+      updatecrypted()
+    })
+    function buildc(e){
+      let num = +e.target.value
+      let cbox = e.target.nextElementSibling
+      let cty = markers[document.getElementById("cty").value]
+      cbox.innerHTML = ""
+      for(let i=0;i<num;i++){
+        cbox.appendChild(document.createElement("span")).innerText = cty[i]
+        cbox.appendChild(document.createElement("input")).type = "checkbox"
+      }
+    }
+    function binarize(eTarget){
+      let row = eTarget.parentElement.parentElement
+      //let pre = "0000"+(+row.firstElementChild.value-1).toString(2)
+      //pre = pre.substr(pre.length-4,4)
+      let pre = String.fromCharCode(64+(+row.firstElementChild.value))
+      let post =""
+      row.querySelectorAll("[type=checkbox]").forEach(c=>{post += c.checked?"1":"0"})
+      row.lastElementChild.innerText = pre+parseInt(post,2)
+      document.getElementById("bin").innerText = ""
+      document.querySelectorAll("#panel > div > span").forEach(s=>{
+        document.getElementById("bin").innerText+=s.innerText
+      })
+    }
+    function updatecrypted(){
+      document.getElementById("crypted").innerText = "https://mdcu.github.io/tbl/student.html?gold=" + encodeURIComponent(
+          ["open","authen","locked"][document.getElementById("tblmode").selectedIndex] +"."+
+          document.getElementById("cty").value+"."+
+          CryptoJS.AES.encrypt(
+            document.getElementById("tblname").value+"."+
+            document.getElementById("bin").innerText+"."+
+            document.getElementById("formid").value,
+            document.getElementById("passcode").value
+          ).toString()
+        )
+    }
+  </script>
+  </body>
+</html>

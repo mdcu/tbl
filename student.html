@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="viewport" content="user-scalable=no, width=device-width"/>
+    <meta name="apple-mobile-web-app-title" content="iTBL setup webapp"/>
+    <title>iTBL setup webapp</title>
+    <link rel="icon" href="https://mdcu.github.io/onka.js/asset/onka.png" type="image/x-icon"/>
+    <link rel="stylesheet" href="https://mdcu.github.io/onka.js/onka_base.css"/>
+    <link rel="stylesheet" href="osce.css"/>
+    <!--<link rel="stylesheet" href="onka_underproduction.css"/> <!-- comment out this line once design process is done-->
+    <script src="https://mdcu.github.io/onka.js/onka.js"></script>
+    <script src="https://mdcu.github.io/onka.js/onka_array.js"></script>
+    <script src="https://mdcu.github.io/onka.js/onka_file.js"></script>
+    <script src="https://mdcu.github.io/onka.js/onka_dom.js"></script>
+    <script src="osce.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <style>
+    div {margin-top:3em;padding:0.5em;}
+    div:nth-child(odd){background-color: #EEE}
+    div:nth-child(even){background-color: #DDD}
+    div > span {font-size: 2em;padding-left: 1em;padding-right: 1em; margin:1em;background-color:silver;border-radius: 2em;}
+    .WRONG {background-color: red;}
+    .RIGHT {background-color: green;}
+    .DIE {background-color: #EEE;color:#DDD;}
+    </style>
+  </head>
+  <body>
+    <script>
+    var choice_status = {}
+    var choice_record = []
+    var spine = {}
+    const markers = {
+      "D":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],
+      "A":["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P"],
+      "a":["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p"],
+      "T":["ก","ข","ค","ง","จ","ฉ","ช","ซ","ญ","ด","ต","ถ","ท","น","บ"]
+    }
+    var gold = new URLSearchParams(window.location.search).get("gold")
+    while(!spine || !gold){}
+    [spine.mode,spine.cty] = [gold.split(".")[0],gold.split(".")[1]]
+    console.log(gold.split(".")[2])
+    if(spine.mode == "open"){decode()}else{authen()}
+
+    function authen(){
+      spine.usr = prompt("sign-in (speudo):")
+      decode()
+    }
+
+    function decode(){
+      let tmp = ""
+      try{tmp = CryptoJS.AES.decrypt(gold.split(".")[2],"").toString(CryptoJS.enc.Utf8)}catch(error){console.log("passcode required")}
+      while(tmp==""){
+        let pwd = prompt("Please enter password")
+        try{
+          tmp =
+          CryptoJS.AES.decrypt(
+            gold.split(".")[2],
+            spine.mode=="locked"?CryptoJS.AES.decrypt(pwd,spine.usr).toString(CryptoJS.enc.Utf8):pwd
+          ).toString(CryptoJS.enc.Utf8)
+        }catch(error){console.log("Wrong password!")}
+      }
+      [spine.title,spine.keys,spine.fid] = tmp.split(".")
+      document.body.appendChild(document.createElement("h1")).innerText = spine.title
+      let stack = [
+        spine.keys.match(/[A-Z]/g),
+        spine.keys.match(/\d+/g)
+      ]
+      for(let C = 0;C<stack[0].length;C++){
+        let div = document.body.appendChild(document.createElement("div"))
+        div.id = "Q"+(C+1)
+        div.appendChild(document.createElement("p")).innerText = "Q "+(C+1)+"."
+        let qc = stack[0][C].charCodeAt()-64
+        let err = ("0000000"+parseInt(stack[1][C]).toString(2)).substr(-qc,qc)
+        for(let i=0;i<qc;i++){
+          let ss = div.appendChild(document.createElement("span"))
+          ss.id = "Q"+(C+1)+"-"+markers[spine.cty][i]
+          choice_status[ss.id] = 0
+          ss.innerText = markers[spine.cty][i]
+          ss.addEventListener("click",+err[i]?function(e){RR(e.target)}:function(e){WW(e.target)})
+        }
+      }
+    }
+
+    function RR(eTarget){
+      console.log(eTarget.id)
+      choice_status[eTarget.id] = 2
+      choice_record.push({
+        "Timestamp": new Date(),
+        "Choice": eTarget.id,
+        "Result": "Right"
+      });
+      [...eTarget.parentElement.querySelectorAll("span")].forEach(S=>{
+        if(S==eTarget){
+          eTarget.className = "RIGHT"
+          eTarget.parentElement.replaceChild(eTarget.cloneNode(true),eTarget)
+        }else if(S.className != "WRONG"){
+          S.className = "DIE"
+          S.parentElement.replaceChild(S.cloneNode(true),S)
+        }
+      })
+    }
+    function WW(eTarget){
+      console.log(eTarget.id)
+      choice_status[eTarget.id] = -1
+      choice_record.push({
+        "Timestamp": new Date(),
+        "Choice": eTarget.id,
+        "Result": "Wrong"
+      })
+      eTarget.className = "WRONG"
+      eTarget.parentElement.replaceChild(eTarget.cloneNode(true),eTarget)
+    }
+
+    </script>
+  </body>
+</html>
