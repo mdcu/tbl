@@ -25,7 +25,7 @@
     .WRONG {background-color: red;}
     .RIGHT {background-color: green;}
     .DIE {background-color: #EEE;color:#DDD;}
-    #my-signin2 {background-color:white;}
+    #gsign {background-color:white;}
     </style>
   </head>
   <body>
@@ -58,7 +58,7 @@
     function authen(){
       //spine.usr = prompt("sign-in (speudo):")
       let gd = document.body.appendChild(document.createElement("div"))
-      gd.id = "my-signin2"
+      gd.id = "gsign"
       gd.innerHTML = "Loading authetication ..."
       let si = setInterval(function(){
         try{renderButton();clearInterval(si)}catch(error){gd.innerHTML+="..."}
@@ -133,29 +133,7 @@
       eTarget.parentElement.replaceChild(eTarget.cloneNode(true),eTarget)
     }
 
-    //
-    function onSuccess(googleUser) {
-          sudo = googleUser;
-          console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-          document.body.removeChild(document.getElementById("my-signin2"))
-          decode()
-        }
-        function onFailure(error) {
-          console.log(error);
-        }
-        function renderButton() {
-          gapi.auth2.getAuthInstance().disconnect();
-          gapi.signin2.render('my-signin2', {
-            'scope': 'profile email',
-            'width': 240,
-            'height': 50,
-            'longtitle': true,
-            'theme': 'dark',
-            'onsuccess': onSuccess,
-            'onfailure': onFailure
-          });
-        }
-    //
+
     </script>
   </body>
 </html>
