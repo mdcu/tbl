@@ -25,6 +25,7 @@
     .WRONG {background-color: red;}
     .RIGHT {background-color: green;}
     .DIE {background-color: #EEE;color:#DDD;}
+    #my-signin2 {background-color:white;}
     </style>
   </head>
   <body>
@@ -143,6 +144,7 @@
           console.log(error);
         }
         function renderButton() {
+          gapi.auth2.getAuthInstance().disconnect();
           gapi.signin2.render('my-signin2', {
             'scope': 'profile email',
             'width': 240,
