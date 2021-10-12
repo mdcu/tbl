@@ -58,9 +58,10 @@
       //spine.usr = prompt("sign-in (speudo):")
       let gd = document.body.appendChild(document.createElement("div"))
       gd.id = "my-signin2"
-      gd.innerHTML = "GOOGLE SIGNIN"
-      while(typeof gapi == 'undefined'){}
-      renderButton()
+      gd.innerHTML = "Loading authetication ..."
+      let si = setInterval(function(){
+        try{renderButton()}catch(error){gd.innerHTML+="..."}
+      },1000)
     }
 
     function decode(){
