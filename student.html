@@ -131,10 +131,12 @@
 
     function scratch(eTarget){
       if(!eTarget.dataset.scratch)eTarget.dataset.scratch=1
-      if(eTarget.dataset.scratch > 5) return true
+      if(eTarget.dataset.scratch > 5) {eTarget.style.backgroundColor="";return true;}
       if(eTarget.dataset.scratch++ < 6){
+        eTarget.style.backgroundColor = ["","silver","#BBB","#999","#777","#555"][eTarget.dataset.scratch]
         let ti = setInterval(function(){
           eTarget.dataset.scratch=1;
+          eTarget.style.backgroundColor = "silver"
           clearInterval(ti)
         },3000)
         return false
