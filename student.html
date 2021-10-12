@@ -136,6 +136,8 @@
     function onSuccess(googleUser) {
           sudo = googleUser;
           console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+          document.body.removeChild(document.getElementById("my-signin2"))
+          decode()
         }
         function onFailure(error) {
           console.log(error);
