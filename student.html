@@ -22,7 +22,18 @@
     div {margin-top:3em;padding:0.5em;}
     div:nth-child(odd){background-color: #EEE}
     div:nth-child(even){background-color: #DDD}
-    div > span {font-size: 2em;padding-left: 1em;padding-right: 1em; margin:1em;background-color:silver;border-radius: 2em;}
+    div > span {
+      font-size: 2em;
+      padding-left: 1em;padding-right: 1em;
+      margin:1em;
+      background-color:silver;border-radius: 2em;
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+      -khtml-user-select: none; /* Konqueror HTML */
+      -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+      user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+    }
     .WRONG {background-color: red;}
     .RIGHT {background-color: green;}
     .DIE {background-color: #EEE;color:#DDD;}
@@ -118,8 +129,20 @@
       }
     }
 
+    function scratch(eTarget){
+      if(!eTarget.dataset.scratch)eTarget.dataset.scratch=1
+      if(eTarget.dataset.scratch > 5) return true
+      if(eTarget.dataset.scratch++ < 6){
+        let ti = setInterval(function(){
+          eTarget.dataset.scratch=1;
+          clearInterval(ti)
+        },3000)
+        return false
+      }
+    }
+
     function RR(eTarget){
-      if(!confirm("Choose OK to confirm your answer"))return;
+      if(!scratch(eTarget))return;
       console.log(eTarget.id)
       choice_status[eTarget.id] = 1
       choice_record.push({
@@ -139,7 +162,7 @@
       })
     }
     function WW(eTarget){
-      if(!confirm("Choose OK to confirm your answer"))return;
+      if(!scratch(eTarget))return;
       console.log(eTarget.id)
       choice_status[eTarget.id] = -1
       choice_record.push({
