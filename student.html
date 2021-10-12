@@ -5,7 +5,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="viewport" content="user-scalable=no, width=device-width"/>
     <meta name="apple-mobile-web-app-title" content="iTBL student webapp"/>
-    <meta name="google-signin-client_id" content="505183713258-mf1813r70g95ljcv3ollfhgaoipmmt6n.apps.googleusercontent.com">
+
     <title>iTBL setup webapp</title>
     <link rel="icon" href="https://mdcu.github.io/onka.js/asset/onka.png" type="image/x-icon"/>
     <link rel="stylesheet" href="https://mdcu.github.io/onka.js/onka_base.css"/>
@@ -61,7 +61,18 @@
       gd.id = "gsign"
       gd.innerHTML = "Loading authetication ..."
       let si = setInterval(function(){
-        try{renderButton();clearInterval(si)}catch(error){gd.innerHTML+="..."}
+        try{
+          google.accounts.id.initialize({
+            client_id: "505183713258-mf1813r70g95ljcv3ollfhgaoipmmt6n.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+          });
+          google.accounts.id.renderButton(
+            document.getElementById("gsign"),
+            { theme: "outline", size: "large" }
+          );
+          google.accounts.id.prompt();
+          clearInterval(si)
+        }catch(error){gd.innerHTML+="...";console.log(error)}
       },1000)
     }
 
