@@ -59,7 +59,7 @@
       let gd = document.body.appendChild(document.createElement("div"))
       gd.id = "my-signin2"
       gd.innerHTML = "GOOGLE SIGNIN"
-      while(!gapi){}
+      while(typeof gapi == 'undefined'){}
       renderButton()
     }
 
