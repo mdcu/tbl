@@ -68,13 +68,16 @@
             callback: function(response){
               console.log(response)
               sudo = response.credential
+              spine.usr = jwt_decode(sudo).email
+              document.body.removeChild(document.getElementById("gsign"))
+              decode()
             }
           });
           google.accounts.id.renderButton(
             document.getElementById("gsign"),
             { theme: "outline", size: "large" }
           );
-          google.accounts.id.prompt();
+          //google.accounts.id.prompt();
           clearInterval(si)
         }catch(error){gd.innerHTML+="...";console.log(error)}
       },1000)
