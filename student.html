@@ -4,7 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="viewport" content="user-scalable=no, width=device-width"/>
-    <meta name="apple-mobile-web-app-title" content="iTBL setup webapp"/>
+    <meta name="apple-mobile-web-app-title" content="iTBL student webapp"/>
+    <meta name="google-signin-client_id" content="307632525573-5lqcpvdotif35geosm5cnp4gkrnikjo1.apps.googleusercontent.com">
     <title>iTBL setup webapp</title>
     <link rel="icon" href="https://mdcu.github.io/onka.js/asset/onka.png" type="image/x-icon"/>
     <link rel="stylesheet" href="https://mdcu.github.io/onka.js/onka_base.css"/>
@@ -16,6 +17,8 @@
     <script src="https://mdcu.github.io/onka.js/onka_dom.js"></script>
     <script src="osce.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
     <style>
     div {margin-top:3em;padding:0.5em;}
     div:nth-child(odd){background-color: #EEE}
@@ -27,6 +30,10 @@
     </style>
   </head>
   <body>
+
+
+
+
     <script>
     var choice_status = {}
     var choice_record = []
@@ -41,11 +48,18 @@
     while(!spine || !gold){}
     [spine.mode,spine.cty] = [gold.split(".")[0],gold.split(".")[1]]
     console.log(gold.split(".")[2])
-    if(spine.mode == "open"){decode()}else{authen()}
+    if(spine.mode == "open"){askusr()}else{authen()}
+
+    function askusr(){
+      spine.usr = prompt("Please enter your (team) name:")
+      decode();
+    }
 
     function authen(){
-      spine.usr = prompt("sign-in (speudo):")
-      decode()
+      //spine.usr = prompt("sign-in (speudo):")
+      let gd = document.body.appendChild(document.createElement("div"))
+      gd.className = "g-signin2"
+      gd.dataset.onsuccess = "onSignIn"
     }
 
     function decode(){
@@ -84,8 +98,9 @@
     }
 
     function RR(eTarget){
+      if(!confirm("Choose OK to confirm your answer"))return;
       console.log(eTarget.id)
-      choice_status[eTarget.id] = 2
+      choice_status[eTarget.id] = 1
       choice_record.push({
         "Timestamp": new Date(),
         "Choice": eTarget.id,
@@ -98,10 +113,12 @@
         }else if(S.className != "WRONG"){
           S.className = "DIE"
           S.parentElement.replaceChild(S.cloneNode(true),S)
+          choice_status[S.id] = 2
         }
       })
     }
     function WW(eTarget){
+      if(!confirm("Choose OK to confirm your answer"))return;
       console.log(eTarget.id)
       choice_status[eTarget.id] = -1
       choice_record.push({
@@ -113,6 +130,9 @@
       eTarget.parentElement.replaceChild(eTarget.cloneNode(true),eTarget)
     }
 
+    //
+
+    //
     </script>
   </body>
 </html>
