@@ -5,17 +5,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="viewport" content="user-scalable=no, width=device-width"/>
     <meta name="apple-mobile-web-app-title" content="iTBL student webapp"/>
-    <meta name="google-signin-client_id" content="307632525573-5lqcpvdotif35geosm5cnp4gkrnikjo1.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="505183713258-mf1813r70g95ljcv3ollfhgaoipmmt6n.apps.googleusercontent.com">
     <title>iTBL setup webapp</title>
     <link rel="icon" href="https://mdcu.github.io/onka.js/asset/onka.png" type="image/x-icon"/>
     <link rel="stylesheet" href="https://mdcu.github.io/onka.js/onka_base.css"/>
-    <link rel="stylesheet" href="osce.css"/>
     <!--<link rel="stylesheet" href="onka_underproduction.css"/> <!-- comment out this line once design process is done-->
     <script src="https://mdcu.github.io/onka.js/onka.js"></script>
     <script src="https://mdcu.github.io/onka.js/onka_array.js"></script>
     <script src="https://mdcu.github.io/onka.js/onka_file.js"></script>
     <script src="https://mdcu.github.io/onka.js/onka_dom.js"></script>
-    <script src="osce.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
 
@@ -58,8 +56,8 @@
     function authen(){
       //spine.usr = prompt("sign-in (speudo):")
       let gd = document.body.appendChild(document.createElement("div"))
-      gd.className = "g-signin2"
-      gd.dataset.onsuccess = "onSignIn"
+      gd.id = "my-signin2"
+      renderButton()
     }
 
     function decode(){
@@ -131,7 +129,23 @@
     }
 
     //
-
+    function onSuccess(googleUser) {
+          console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+        }
+        function onFailure(error) {
+          console.log(error);
+        }
+        function renderButton() {
+          gapi.signin2.render('my-signin2', {
+            'scope': 'profile email',
+            'width': 240,
+            'height': 50,
+            'longtitle': true,
+            'theme': 'dark',
+            'onsuccess': onSuccess,
+            'onfailure': onFailure
+          });
+        }
     //
     </script>
   </body>
