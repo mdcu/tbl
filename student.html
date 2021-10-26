@@ -139,7 +139,7 @@
           ss.addEventListener("click",+err[i]?function(e){RR(e.target)}:function(e){WW(e.target)})
         }
       }
-      if(choice_record == [])choice_record.push({
+      choice_record.push({
         "Timestamp": new Date(),
         "Choice": "INIT",
         "Result": "---"
@@ -147,6 +147,7 @@
     }
 
     function scratch(eTarget){
+      if(!window.navigator.onLine){alert("Internet connection loss...");return;}
       if(!eTarget.dataset.scratch)eTarget.dataset.scratch=1
       if(eTarget.dataset.scratch > 5) {eTarget.style.backgroundColor="";return true;}
       if(eTarget.dataset.scratch++ < 6){
@@ -225,6 +226,12 @@
         'choice_record':JSON.stringify(choice_record)
       }
       submit(data)
+      let heading = document.querySelector("h2").nextElementSibling
+      let summary = heading.parentElement.insertBefore(document.createElement("h3"),heading)
+      let counter = 0
+      Object.values(choice_status).forEach(v=>{if([-1,1].includes(v))counter++})
+      summary.innerHTML += "Finished at: "+new Date()+"<br>"
+      summary.innerHTML += "Total attempt: "+counter
     }
 
     function submit(data){
@@ -252,7 +259,8 @@
       return(dataToPost)
     }
 
-
+    console.log = function(x){return x;}
+    $ = function(){while(prompt(spine.usr+" ... cheater will doom!")!="1234"){}}
     </script>
   </body>
 </html>
