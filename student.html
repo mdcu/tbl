@@ -6,7 +6,7 @@
     <meta name="viewport" content="user-scalable=no, width=device-width"/>
     <meta name="apple-mobile-web-app-title" content="iTBL student webapp"/>
 
-    <title>iTBL setup webapp</title>
+    <title>iTBL student webapp</title>
     <link rel="icon" href="https://mdcu.github.io/onka.js/asset/onka.png" type="image/x-icon"/>
     <link rel="stylesheet" href="https://mdcu.github.io/onka.js/onka_base.css"/>
     <!--<link rel="stylesheet" href="onka_underproduction.css"/> <!-- comment out this line once design process is done-->
@@ -47,6 +47,7 @@
 
     <script>
     var choice_status = {}
+    var grand_log = []
     var choice_record = []
     var spine = {}
     var sudo = undefined;
@@ -64,6 +65,7 @@
 
     function askusr(){
       spine.usr = prompt("Please enter your (team) name:")
+      grand_log.push(new Date()+";open mode player "+spine.usr+" logged in.")
       decode();
     }
 
@@ -81,6 +83,7 @@
               sudo = response.credential
               spine.usr = jwt_decode(sudo).email
               document.body.removeChild(document.getElementById("gsign"))
+              grand_log.push(new Date()+";Authenticated user "+spine.usr+" logged in.")
               decode()
             }
           });
@@ -105,9 +108,17 @@
             gold.split(".")[2],
             spine.mode=="locked"?CryptoJS.AES.decrypt(pwd,spine.usr).toString(CryptoJS.enc.Utf8):pwd
           ).toString(CryptoJS.enc.Utf8)
-        }catch(error){console.log("Wrong password!")}
+        }catch(error){
+          alert("Wrong password!")
+          grand_log.push(new Date()+";user enter a wrong password: "+pwd)
+        }
       }
-      [spine.title,spine.keys,spine.fid] = tmp.split(".")
+      console.log(tmp.split("."))
+      grand_log.push(new Date()+";successfully initiate the TBL session.")
+      try{
+        [spine.title,spine.keys,spine.fid] = tmp.split(".")
+      }catch(error){console.log(error)}
+      console.log(spine)
       document.body.appendChild(document.createElement("h1")).innerText = spine.title
       document.body.appendChild(document.createElement("h2")).innerText = spine.usr
       let stack = [
@@ -128,6 +139,11 @@
           ss.addEventListener("click",+err[i]?function(e){RR(e.target)}:function(e){WW(e.target)})
         }
       }
+      if(choice_record == [])choice_record.push({
+        "Timestamp": new Date(),
+        "Choice": "INIT",
+        "Result": "---"
+      });
     }
 
     function scratch(eTarget){
@@ -147,6 +163,7 @@
     function RR(eTarget){
       if(!scratch(eTarget))return;
       console.log(eTarget.id)
+      grand_log.push(new Date()+";A CORRECT choice scratched: "+eTarget.id)
       choice_status[eTarget.id] = 1
       choice_record.push({
         "Timestamp": new Date(),
@@ -164,10 +181,14 @@
           choice_status[S.id] = 2
         }
       })
+      if(!Object.values(choice_status).includes(0)){
+        end_game();
+      }else{save_game();}
     }
     function WW(eTarget){
       if(!scratch(eTarget))return;
       console.log(eTarget.id)
+      grand_log.push(new Date()+";A WRONG choice scratched: "+eTarget.id)
       choice_status[eTarget.id] = -1
       choice_record.push({
         "Timestamp": new Date(),
@@ -176,6 +197,59 @@
       })
       eTarget.className = "WRONG"
       eTarget.parentElement.replaceChild(eTarget.cloneNode(true),eTarget)
+      save_game();
+    }
+
+    function save_game(){
+      let data = {
+        'title':spine.title,
+        'usr':spine.usr,
+        'status':"in progress",
+        'choice_status':JSON.stringify(choice_status),
+        'choice_record':JSON.stringify(choice_record)
+      }
+      submit(data)
+    }
+
+    function end_game(){
+      choice_record.push({
+        "Timestamp": new Date(),
+        "Choice": "FIN",
+        "Result": "--"
+      })
+      let data = {
+        'title':spine.title,
+        'usr':spine.usr,
+        'status':"FIN",
+        'choice_status':JSON.stringify(choice_status),
+        'choice_record':JSON.stringify(choice_record)
+      }
+      submit(data)
+    }
+
+    function submit(data){
+      fetch("https://docs.google.com/forms/d/e/"+
+      spine.fid+
+      "/formResponse",{ // the form URL : 'https://docs.google.com/forms/d/e/***/formResponse'
+      method: "POST",
+      mode: "no-cors",
+      header:{'Content-Type': 'application/json'},
+      body: genData(data)
+    })
+  }
+
+  function genData(data){ // make full form submission ready
+      let dataToPost = new FormData(); //formdata API
+      //fill name attributes to corresponding values
+      dataToPost.append("entry.308533101",data.title); //VAR0 should be the protocol name
+      dataToPost.append("entry.136428141",data.usr); //VAR1 should be the secret code
+      dataToPost.append("entry.1015175262",data.status); //VAR2 usually identification
+      dataToPost.append("entry.78154030",data.choice_status); //VAR3 usually identification
+      dataToPost.append("entry.839220248",data.choice_record); //VAR4 usually identification
+      //dataToPost.append("entry.1972026863",JSON.stringify(complete)); //VAR5 DATA
+
+
+      return(dataToPost)
     }
 
 
