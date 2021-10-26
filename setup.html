@@ -14,16 +14,18 @@
     <script src="https://mdcu.github.io/onka.js/onka_array.js"></script>
     <script src="https://mdcu.github.io/onka.js/onka_file.js"></script>
     <script src="https://mdcu.github.io/onka.js/onka_dom.js"></script>
-    <script src="osce.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
     <style>
       #panel > div:nth-child(odd) {background-color:#DDD;}
       #panel > div:nth-child(even) {background-color:#EEE;}
-        #panel > div > div {display: inline-block;}
-          #panel > div > div span {margin-left: 1em;}
-        #panel >div > span {float:right;color:#CCC;font-size:0.5em;}
+      #panel > div > div {display: inline-block;}
+      #panel > div > div span {margin-left: 1em;}
+      #panel >div > span {float:right;color:#CCC;font-size:0.5em;}
       #panel > p {line-break:anywhere;}
-        #crypted {padding:1em;background-color: limegreen;}
+      #crypted {padding:1em;background-color: limegreen;}
+      #locked_panel textarea {margin:auto;height:10em;font-size: 0.8em;}
+      #locked_panel textarea:first-child {width:30%;}
+      #locked_panel textarea:last-child {width:70%;}
     </style>
   </head>
   <body>
@@ -94,6 +96,7 @@
       let formid = panel.appendChild(document.createElement("input"))
       formid.id = "formid"
       panel.appendChild(document.createElement("p")).id = "crypted"
+      panel.appendChild(document.createElement("div")).id = "locked_panel"
       tblmode.addEventListener("change",updatecrypted)
       passcode.addEventListener("change",updatecrypted)
       formid.addEventListener("change",updatecrypted)
@@ -133,6 +136,23 @@
             document.getElementById("passcode").value
           ).toString()
         )
+        if(document.getElementById("tblmode").selectedIndex==2){
+          document.getElementById("locked_panel").innerHTML = ""
+          let mails = document.getElementById("locked_panel").appendChild(document.createElement("textarea"))
+          mails.placeholder = "enter students' email separated by a new line (enter/return)"
+          let codes = document.getElementById("locked_panel").appendChild(document.createElement("textarea"))
+          mails.addEventListener("change",function(){
+            let mail_list = mails.value.split("\n")
+            console.log(mail_list)
+            let true_pass = document.getElementById("passcode").value
+            let locked_pass = []
+            mail_list.forEach(ml => {
+              locked_pass.push(ml+","+CryptoJS.AES.encrypt(true_pass,ml).toString())
+            })
+            console.log(locked_pass)
+            codes.value = locked_pass.join("\n")
+          })
+        }else{document.getElementById("locked_panel").innerHTML = ""}
     }
   </script>
   </body>

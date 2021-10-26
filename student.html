@@ -98,7 +98,7 @@
       let tmp = ""
       try{tmp = CryptoJS.AES.decrypt(gold.split(".")[2],"").toString(CryptoJS.enc.Utf8)}catch(error){console.log("passcode required")}
       while(tmp==""){
-        let pwd = prompt("Please enter password")
+        let pwd = prompt("Hello "+spine.usr+", Please enter password")
         try{
           tmp =
           CryptoJS.AES.decrypt(
@@ -109,6 +109,7 @@
       }
       [spine.title,spine.keys,spine.fid] = tmp.split(".")
       document.body.appendChild(document.createElement("h1")).innerText = spine.title
+      document.body.appendChild(document.createElement("h2")).innerText = spine.usr
       let stack = [
         spine.keys.match(/[A-Z]/g),
         spine.keys.match(/\d+/g)
@@ -157,6 +158,7 @@
           eTarget.className = "RIGHT"
           eTarget.parentElement.replaceChild(eTarget.cloneNode(true),eTarget)
         }else if(S.className != "WRONG"){
+          S.style.backgroundColor=""
           S.className = "DIE"
           S.parentElement.replaceChild(S.cloneNode(true),S)
           choice_status[S.id] = 2
