@@ -46,6 +46,8 @@
 
 
     <script>
+    function prevent(e){e.preventDefault();return e.returnValue = "Are you sure you want to exit?"}
+    window.addEventListener("beforeunload",prevent,{capture:true})
     var choice_status = {}
     var grand_log = []
     var choice_record = []
@@ -232,6 +234,7 @@
       Object.values(choice_status).forEach(v=>{if([-1,1].includes(v))counter++})
       summary.innerHTML += "Finished at: "+new Date()+"<br>"
       summary.innerHTML += "Total attempt: "+counter
+      window.removeEventListener("beforeunload",prevent,{capture:true})
     }
 
     function submit(data){
