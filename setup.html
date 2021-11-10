@@ -98,6 +98,7 @@
       formid.value = '1FAIpQLSf4wsuLaN0cTBQUPizMq50ymJI41WSTv9qy0dKDTNVS7k3tCA'
       panel.appendChild(document.createElement("p")).id = "crypted"
       panel.appendChild(document.createElement("div")).id = "locked_panel"
+      tblname.addEventListener("change",updatecrypted)
       tblmode.addEventListener("change",updatecrypted)
       passcode.addEventListener("change",updatecrypted)
       formid.addEventListener("change",updatecrypted)
@@ -125,6 +126,7 @@
       document.querySelectorAll("#panel > div > span").forEach(s=>{
         document.getElementById("bin").innerText+=s.innerText
       })
+      updatecrypted();
     }
     function updatecrypted(){
       document.getElementById("crypted").innerText = "https://mdcu.github.io/tbl/student.html?gold=" + encodeURIComponent(
