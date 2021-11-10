@@ -126,7 +126,7 @@
       document.querySelectorAll("#panel > div > span").forEach(s=>{
         document.getElementById("bin").innerText+=s.innerText
       })
-      updatecrypted();
+      try{updatecrypted();}catch(error){}
     }
     function updatecrypted(){
       document.getElementById("crypted").innerText = "https://mdcu.github.io/tbl/student.html?gold=" + encodeURIComponent(
